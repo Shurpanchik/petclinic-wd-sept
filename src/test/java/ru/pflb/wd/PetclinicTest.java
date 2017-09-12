@@ -9,10 +9,15 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxProfile;
 import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.support.ui.Select;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Random;
 
 import static com.sun.xml.internal.ws.util.StringUtils.capitalize;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -103,6 +108,53 @@ public class PetclinicTest {
     @Test
     public void shouldAddNewPet() {
 
+        // открытие браузера на нужной странице
+        driver.get("http://localhost:8080");
+
+        // клик по меню Find Owners
+        driver.findElement(By.xpath("//a[@href='/owners/find']")).click();
+
+        // ввод в поле поиска фамилии хозяина животного
+        driver.findElement(By.xpath("//input[@id='lastName']")).sendKeys("Black");
+
+        // клик по кнопке Find Owner
+        driver.findElement(By.xpath("//button[starts-with(text(), 'Find')]")).click();
+
+        // клик по кнопке Add new pet
+        driver.findElement(By.xpath("//a[contains(@href, 'pets/new')]")).click();
+
+        // ввод произвольной клички от 4 до 8 символов
+        String randomPetName = capitalize(randomAlphabetic(4 + new Random().nextInt(5)));
+        driver.findElement(By.xpath("//input[@id='name']")).sendKeys(randomPetName);
+
+        // ввод даты рождения - неделя назад
+        String petBirthDate = LocalDate.now().minusWeeks(1).format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
+        driver.findElement(By.xpath("//input[@id='birthDate']")).sendKeys(petBirthDate);
+
+        // выбор из выпадающего списка - lizard
+        new Select(driver.findElement(By.xpath("//select[@id='type']"))).selectByVisibleText("lizard");
+
+        // клик по кнопке Update pet
+        driver.findElement(By.xpath("//button[.='Update Pet']")).click();
+        List<WebElement> rows = driver.findElements(By.xpath("//h2[.='Pets and Visits']/following-sibling::table/tbody/tr"));
+
+        // выставляю нулевое ожидание, чтобы не ждать подолгу на неподходящих строках
+        driver.manage().timeouts().implicitlyWait(0, SECONDS);
+        // итерация по всем строкам
+        for (WebElement row : rows) {
+            if (!row.findElements(By.xpath("//dd[.='" + randomPetName + "']")).isEmpty()) {
+                // формат даты немного другой
+                String formattedBirthDate = LocalDate.now().minusWeeks(1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                if (!row.findElements(By.xpath("//dd[.='" + formattedBirthDate + "']")).isEmpty()) {
+                    if (!row.findElements(By.xpath("//dd[.='lizard']")).isEmpty()) {
+                        // нашли искомую
+                        return;
+                    }
+                }
+            }
+        }
+        // не нашли нужную строку
+        throw new IllegalStateException("Не найдено ни одной строки с требуемыми значениями");
     }
 
     /**
