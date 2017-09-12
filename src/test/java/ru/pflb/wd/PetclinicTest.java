@@ -3,7 +3,9 @@ package ru.pflb.wd;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxProfile;
 import org.openqa.selenium.remote.DesiredCapabilities;
@@ -12,7 +14,10 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
+import static com.sun.xml.internal.ws.util.StringUtils.capitalize;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.openqa.selenium.firefox.FirefoxDriver.PROFILE;
 
 /**
@@ -59,9 +64,41 @@ public class PetclinicTest {
         // открытие браузера на нужной странице
         driver.get("http://localhost:8080");
 
+        // клик по меню Find Owners
+        driver.findElement(By.xpath("//a[@href='/owners/find']")).click();
 
+        // ввод в поле поиска фамилии хозяина животного
+        driver.findElement(By.xpath("//input[@id='lastName']")).sendKeys("Black");
+
+        // клик по кнопке Find Owner
+        driver.findElement(By.xpath("//button[starts-with(text(), 'Find')]")).click();
+
+        // клик по кнопке Edit Owner
+        driver.findElement(By.xpath("//h2/following-sibling::a[starts-with(text(), 'Edit')]")).click();
+
+        // ввод произвольного значения длиной в 6 символов в поле имя
+        String randomName = capitalize(randomAlphabetic(6));
+        WebElement firstNameEdit = driver.findElement(By.xpath("//input[@id='firstName']"));
+        firstNameEdit.clear();
+        firstNameEdit.sendKeys(randomName);
+
+        // клик по кнопке Update Owner
+        driver.findElement(By.xpath("//button[.='Update Owner']")).click();
+
+        // клик по меню Find Owners
+        driver.findElement(By.xpath("//a[@href='/owners/find']")).click();
+
+        // ввод в поле поиска фамилии хозяина животного
+        driver.findElement(By.xpath("//input[@id='lastName']")).sendKeys("Black");
+
+        // клик по кнопке Find Owner
+        driver.findElement(By.xpath("//button[starts-with(text(), 'Find')]")).click();
+
+        // считывание имени и фамилии
+        String fullName = driver.findElement(By.xpath("//th[.='Name']/following-sibling::td/b")).getText();
+
+        assertThat(fullName).describedAs("Имя пользователя не было изменено").startsWith(randomName);
     }
-
 
     @Test
     public void shouldAddNewPet() {
