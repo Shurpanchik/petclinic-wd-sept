@@ -3,9 +3,7 @@ package ru.pflb.wd;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxProfile;
 import org.openqa.selenium.remote.DesiredCapabilities;
@@ -25,15 +23,13 @@ public class PetclinicTest {
     /**
      * При клике по меню "Pet Types" не должно появляться 'Not Found - 404 error'
      */
-    @Test(expected = NoSuchElementException.class)
-    public void shouldDisplayPetTypes() {
-        System.setProperty("webdriver.chrome.driver", new File("src/main/resources/chromedriver.exe").getAbsolutePath());
-        WebDriver driver = new ChromeDriver();
-        driver.manage().window().maximize();
-        driver.manage().timeouts().implicitlyWait(10, SECONDS);
-
-
-    }
+//    @Test(expected = NoSuchElementException.class)
+//    public void shouldDisplayPetTypes() {
+//        System.setProperty("webdriver.chrome.driver", new File("src/main/resources/chromedriver.exe").getAbsolutePath());
+//        WebDriver driver = new ChromeDriver();
+//        driver.manage().window().maximize();
+//        driver.manage().timeouts().implicitlyWait(10, SECONDS);
+//    }
 
     private WebDriver driver;
 
@@ -60,6 +56,9 @@ public class PetclinicTest {
     @Test
     public void shouldFindOwnerAndChangeHisName() {
 
+        // открытие браузера на нужной странице
+        driver.get("http://localhost:8080");
+
 
     }
 
@@ -73,11 +72,11 @@ public class PetclinicTest {
      * Домашнее задание.
      * <p>
      * Сценарий:<ol>
-     * <li>Открыть http://localhost:4200/</li>
-     * <li>Перейти в меню Owners -> Add new</li>
+     * <li>Открыть http://localhost:8080/</li>
+     * <li>Перейти в меню Find Owners -> Add Owner</li>
      * <li>Ввести валидные случайные данные (новые для каждого запуска теста)</li>
-     * <li>Нажать Add Owner, открылась страница Owners</li>
-     * <li>Проверить, что добавилась новая запись, и все ее поля соответствуют введенным значениям</li>
+     * <li>Нажать Add Owner, открылась страница Owner Information</li>
+     * <li>Проверить, что добавилась новая запись, и все ее поля соответствуют введенным значениям, использую поиск в Find Owners</li>
      * </ul>
      */
     public void shouldValidateAddedUser() {
