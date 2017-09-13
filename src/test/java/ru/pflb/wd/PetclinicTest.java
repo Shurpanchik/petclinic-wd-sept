@@ -1,6 +1,7 @@
 package ru.pflb.wd;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openqa.selenium.By;
@@ -13,6 +14,7 @@ import org.openqa.selenium.support.ui.Select;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -22,7 +24,9 @@ import java.util.Random;
 import static com.sun.xml.internal.ws.util.StringUtils.capitalize;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.randomNumeric;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.openqa.selenium.firefox.FirefoxDriver.PROFILE;
 
 /**
@@ -45,6 +49,7 @@ public class PetclinicTest {
 
     @Before
     public void initDriver() throws URISyntaxException, IOException {
+
         DesiredCapabilities capabilities = new DesiredCapabilities();
         FirefoxProfile profile = new FirefoxProfile();
         File firebug = new File(FirefoxDriver.class.getResource("/firebug-1.12.7-fx.xpi").toURI());
@@ -53,6 +58,7 @@ public class PetclinicTest {
         profile.addExtension(firepath);
         profile.setPreference("extensions.firebug.showFirstRunPage", false);
         capabilities.setCapability(PROFILE, profile);
+
         driver = new FirefoxDriver(capabilities);
         driver.manage().window().maximize();
         driver.manage().timeouts().implicitlyWait(10, SECONDS);
@@ -60,7 +66,7 @@ public class PetclinicTest {
 
     @After
     public void closeDriver() {
-        driver.quit();
+      //  driver.quit();
     }
 
     @Test
@@ -168,7 +174,72 @@ public class PetclinicTest {
      * <li>Проверить, что добавилась новая запись, и все ее поля соответствуют введенным значениям, использую поиск в Find Owners</li>
      * </ul>
      */
+    @Test
     public void shouldValidateAddedUser() {
-        // TODO
+        // открытие браузера на нужной странице
+        driver.get("http://localhost:8080");
+
+        // клик по меню Find Owners
+        driver.findElement(By.xpath("//a[@href='/owners/find']")).click();
+
+        // клик по кнопке Add Owner
+        driver.findElement(By.xpath("//a[@href='/owners/new']")).click();
+
+        // заполнение формы пользователя
+        // ввод произвольной строки от 4 до 8 символов
+        Owner owner = new Owner();
+        owner.setFirstName(capitalize(randomAlphabetic(4 + new Random().nextInt(5))));
+        owner.setLastName(capitalize(randomAlphabetic(4 + new Random().nextInt(5))));
+        owner.setAddress(capitalize(randomAlphabetic(4 + new Random().nextInt(5))));
+        owner.setCity(capitalize(randomAlphabetic(4 + new Random().nextInt(5))));
+        owner.setTelephone(capitalize(randomNumeric(1 + new Random().nextInt(10))));
+
+        driver.findElement(By.xpath("//input[@id='firstName']")).sendKeys(owner.getFirstName());
+        driver.findElement(By.xpath("//input[@id='lastName']")).sendKeys(owner.getLastName());
+        driver.findElement(By.xpath("//input[@id='address']")).sendKeys(owner.getAddress());
+        driver.findElement(By.xpath("//input[@id='city']")).sendKeys(owner.getCity());
+        driver.findElement(By.xpath("//input[@id='telephone']")).sendKeys(owner.getTelephone());
+
+        // клик по кнопке добавить пользователя
+        driver.findElement(By.xpath("//button[.='Add Owner']")).click();
+
+        // проверка соответствия результатов в таблице на странице Owner Information
+           checkOwnerInfo(owner);
+
+        // клик по меню Find Owners
+        driver.findElement(By.xpath("//a[@href='/owners/find']")).click();
+
+        // ввод LastName в строку поиска
+        driver.findElement(By.xpath("//input[@id='lastName']")).sendKeys(owner.getLastName());
+        driver.findElement(By.xpath("//input[@id='lastName']")).submit();
+
+        // проверка соответствия результатов в таблице на странице Owner Information
+        checkOwnerInfo(owner);
     }
+
+    /*
+    * @param owner
+    *  метод проверки информации о владельце на странице описания владельца
+     */
+    private void checkOwnerInfo(Owner owner){
+        // проверка FirstName+LastName
+        assertEquals(driver.findElement(By.xpath("//table[1]/tbody/tr[1]/th")).getText(),"Name");
+        assertEquals(driver.findElement(By.xpath("//table[1]/tbody/tr[1]/td/b")).getText(),
+                owner.getFirstName()+" "+owner.getLastName());
+
+        // проверка Address
+        assertEquals(driver.findElement(By.xpath("//table[1]/tbody/tr[2]/th")).getText(),"Address");
+        assertEquals(driver.findElement(By.xpath("//table[1]/tbody/tr[2]/td")).getText(),owner.getAddress());
+
+        // проверка City
+        assertEquals(driver.findElement(By.xpath("//table[1]/tbody/tr[3]/th")).getText(),"City");
+        assertEquals(driver.findElement(By.xpath("//table[1]/tbody/tr[3]/td")).getText(),(owner.getCity()));
+
+        // проверка Telephone
+        assertEquals(driver.findElement(By.xpath("//table[1]/tbody/tr[4]/th")).getText(),"Telephone");
+        assertEquals(driver.findElement(By.xpath("//table[1]/tbody/tr[4]/td")).getText(),owner.getTelephone());
+
+
+    }
+
 }
