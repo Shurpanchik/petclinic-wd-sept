@@ -66,7 +66,7 @@ public class PetclinicTest {
 
     @After
     public void closeDriver() {
-      //  driver.quit();
+        driver.quit();
     }
 
     @Test
