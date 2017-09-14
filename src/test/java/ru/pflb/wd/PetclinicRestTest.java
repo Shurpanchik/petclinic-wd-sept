@@ -123,7 +123,8 @@ public class PetclinicRestTest {
                 .put("city", owner.getCity())
                 .put("telephone", owner.getTelephone());
 
-        given()
+        // отправляем post-запрос на добавление нового владельца
+            given()
                 // Content-type для запроса - формат body запроса
                 .contentType("application/json")
                 .accept("application/json")
