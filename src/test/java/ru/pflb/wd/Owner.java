@@ -1,11 +1,25 @@
 package ru.pflb.wd;
 
+import java.util.Random;
+
+import static com.sun.xml.internal.ws.util.StringUtils.capitalize;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.randomNumeric;
+
 public class Owner {
    private String firstName;
    private String lastName ;
    private String address ;
    private String city ;
    private String telephone;
+
+   public Owner(){
+       firstName = capitalize(randomAlphabetic(4 + new Random().nextInt(5)));
+       lastName = capitalize(randomAlphabetic(4 + new Random().nextInt(5)));
+       address = capitalize(randomAlphabetic(4 + new Random().nextInt(5)));
+       city = capitalize(randomAlphabetic(4 + new Random().nextInt(5)));
+       telephone = capitalize(randomNumeric(1 + new Random().nextInt(10)));
+   }
 
     public String getFirstName() {
         return firstName;

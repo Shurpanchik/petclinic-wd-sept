@@ -2,6 +2,7 @@ package ru.pflb.wd;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.time.LocalDate;
@@ -11,6 +12,7 @@ import static io.restassured.RestAssured.given;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang3.StringUtils.capitalize;
 import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author <a href="mailto:8445322@gmail.com">Ivan Bonkin</a>.
@@ -106,7 +108,45 @@ public class PetclinicRestTest {
      * <li>Используя метод findOwner, проверить совпадение всех полей добавленного пользователя</li>
      * </ul>
      */
+    @Test
     public void shouldValidateAddedUser() {
         // TODO
+        Owner owner = new Owner();
+
+        // составления тела запроса на добавление нового пользователя
+        JSONObject ownerJsonObj = new JSONObject()
+                // id = null
+                .put("id", JSONObject.NULL)
+                .put("firstName",  owner.getFirstName())
+                .put("lastName", owner.getLastName())
+                .put("address", owner.getAddress())
+                .put("city", owner.getCity())
+                .put("telephone", owner.getTelephone());
+
+        given()
+                // Content-type для запроса - формат body запроса
+                .contentType("application/json")
+                .accept("application/json")
+                // тело запроса
+                .body(ownerJsonObj.toString())
+                // URI REST сервера
+                .baseUri(BASE_URI)
+                // путь относительно REST сервера
+                .post("/api/owners")
+                .then()
+                // ожилаение 2xx кодов - успешных
+                .statusCode(equalTo(201));
+
+        // ищем владельца с этой фамилией
+        JSONObject findOwner = findOwner(owner.getLastName());
+
+        // проверяем, что все данные о владельце сохранены правильно
+        assertEquals(findOwner.getString("firstName"), owner.getFirstName());
+        assertEquals(findOwner.getString("lastName"), owner.getLastName());
+        assertEquals(findOwner.getString("address"), owner.getAddress());
+        assertEquals(findOwner.getString("city"), owner.getCity());
+        assertEquals(findOwner.getString("telephone"), owner.getTelephone());
+
+
     }
 }

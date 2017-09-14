@@ -14,7 +14,6 @@ import org.openqa.selenium.support.ui.Select;
 
 import java.io.File;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -188,11 +187,6 @@ public class PetclinicTest {
         // заполнение формы пользователя
         // ввод произвольной строки от 4 до 8 символов
         Owner owner = new Owner();
-        owner.setFirstName(capitalize(randomAlphabetic(4 + new Random().nextInt(5))));
-        owner.setLastName(capitalize(randomAlphabetic(4 + new Random().nextInt(5))));
-        owner.setAddress(capitalize(randomAlphabetic(4 + new Random().nextInt(5))));
-        owner.setCity(capitalize(randomAlphabetic(4 + new Random().nextInt(5))));
-        owner.setTelephone(capitalize(randomNumeric(1 + new Random().nextInt(10))));
 
         driver.findElement(By.xpath("//input[@id='firstName']")).sendKeys(owner.getFirstName());
         driver.findElement(By.xpath("//input[@id='lastName']")).sendKeys(owner.getLastName());
